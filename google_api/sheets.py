@@ -40,14 +40,14 @@ def _row_to_ticket(row: dict) -> Ticket:
     rating = int(row["rating"]) if row.get("rating") else None
     
     return Ticket(
-        ticket_id=row["ticket_id"],
-        created_at=datetime.fromisoformat(row["created_at"]),
-        updated_at=datetime.fromisoformat(row["updated_at"]),
+        ticket_id=str(row["ticket_id"]),
+        created_at=datetime.fromisoformat(str(row["created_at"])),
+        updated_at=datetime.fromisoformat(str(row["updated_at"])),
         telegram_id=tg_id,
-        name=row["name"],
-        phone=row["phone"],
-        description=row["description"],
-        status=TicketStatus(row["status"]),
+        name=str(row["name"]),
+        phone=str(row["phone"]),
+        description=str(row["description"]),
+        status=TicketStatus(str(row["status"])),
         rating=rating,
     )
 

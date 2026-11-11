@@ -9,7 +9,6 @@ class TicketRepository:
         self.db = db
 
     async def upsert(self, ticket: Ticket) -> None:
-        """Вставляет новую заявку или обновляет существующую по ticket_id."""
         await self.db.execute(
             """
             INSERT INTO tickets (
@@ -46,7 +45,6 @@ class TicketRepository:
             return self._row_to_ticket(row) if row else None
 
     async def get_active(self) -> list[Ticket]:
-        """Возвращает только заявки в статусах new и in_progress."""
         async with self.db.execute(
             "SELECT * FROM tickets WHERE status IN (?, ?) ORDER BY updated_at DESC",
             (TicketStatus.NEW.value, TicketStatus.IN_PROGRESS.value),
@@ -61,6 +59,37 @@ class TicketRepository:
         ) as cursor:
             rows = await cursor.fetchall()
             return [self._row_to_ticket(r) for r in rows]
+
+    async def get_stats(self) -> dict:
+        async with self.db.execute("SELECT COUNT(*) FROM tickets") as cursor:
+            total = (await cursor.fetchone())[0]
+
+        async with self.db.execute(
+            "SELECT status, COUNT(*) as count, AVG(rating) as avg_rating FROM tickets GROUP BY status"
+        ) as cursor:
+            rows = await cursor.fetchall()
+        
+        stats = {
+            "total": total,
+            "new": 0, 
+            "in_progress": 0, 
+            "done": 0, 
+            "cancelled": 0, 
+            "avg_rating": 0.0
+        }
+        total_rated = 0
+        sum_ratings = 0.0
+
+        for row in rows:
+            stats[row["status"]] = row["count"]
+            if row["status"] == "done" and row["avg_rating"]:
+                total_rated += row["count"]
+                sum_ratings += row["avg_rating"] * row["count"]
+
+        if total_rated > 0:
+            stats["avg_rating"] = round(sum_ratings / total_rated, 2)
+
+        return stats
 
     async def set_sync_ts(self, ts: datetime) -> None:
         await self.db.execute(

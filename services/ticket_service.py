@@ -36,9 +36,7 @@ class TicketService:
             rating=None,
         )
         
-        # Сначала пишем в Google Sheets (источник правды)
         await sheets.append_ticket(ticket)
-        # Затем в локальный кэш
         await self.repo.upsert(ticket)
         
         logger.info(f"Created ticket {ticket.ticket_id} for user {telegram_id}")
@@ -66,6 +64,24 @@ class TicketService:
         await sheets.update_ticket(updated_ticket)
         await self.repo.upsert(updated_ticket)
         
+        return updated_ticket
+
+    async def rate_ticket(self, ticket_id: str, rating: int) -> Ticket | None:
+        ticket = await self.repo.get_by_id(ticket_id)
+        if not ticket:
+            logger.warning(f"Ticket {ticket_id} not found for rating")
+            return None
+
+        updated_ticket = ticket.model_copy(
+            update={
+                "rating": rating,
+                "updated_at": datetime.now(timezone.utc),
+            }
+        )
+
+        await sheets.update_ticket(updated_ticket)
+        await self.repo.upsert(updated_ticket)
+        logger.info(f"Ticket {ticket_id} rated {rating}")
         return updated_ticket
 
     async def sync_from_sheets(self) -> None:
