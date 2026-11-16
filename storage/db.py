@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS tickets (
     rating INTEGER
 );
 
+CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
+CREATE INDEX IF NOT EXISTS idx_tickets_telegram_id ON tickets(telegram_id);
+
 CREATE TABLE IF NOT EXISTS sync_state (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL

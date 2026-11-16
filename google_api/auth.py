@@ -11,7 +11,5 @@ SCOPES = [
 
 
 def get_gspread_client() -> gspread.Client:
-    creds = Credentials.from_service_account_file(
-        str(settings.google_creds_path), scopes=SCOPES
-    )
+    creds = Credentials.from_service_account_file(str(settings.google_creds_path), scopes=SCOPES)
     return gspread.authorize(creds)

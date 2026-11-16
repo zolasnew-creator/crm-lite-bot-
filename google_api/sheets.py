@@ -3,7 +3,7 @@ from datetime import datetime
 
 import gspread
 from loguru import logger
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from config import settings
 from google_api.auth import get_gspread_client
@@ -38,7 +38,7 @@ def _row_to_ticket(row: dict) -> Ticket:
     # а нам нужны None для int/None полей.
     tg_id = int(row["telegram_id"]) if row.get("telegram_id") else None
     rating = int(row["rating"]) if row.get("rating") else None
-    
+
     return Ticket(
         ticket_id=str(row["ticket_id"]),
         created_at=datetime.fromisoformat(str(row["created_at"])),

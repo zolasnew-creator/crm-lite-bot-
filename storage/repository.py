@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import aiosqlite
 
 from google_api.models import Ticket, TicketStatus
@@ -44,13 +45,35 @@ class TicketRepository:
             row = await cursor.fetchone()
             return self._row_to_ticket(row) if row else None
 
+    async def get_by_telegram_id(self, telegram_id: int) -> list[Ticket]:
+        async with self.db.execute(
+            "SELECT * FROM tickets WHERE telegram_id = ? AND status IN (?, ?) ORDER BY created_at DESC",
+            (telegram_id, TicketStatus.NEW.value, TicketStatus.IN_PROGRESS.value),
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [self._row_to_ticket(r) for r in rows]
+
     async def get_active(self) -> list[Ticket]:
         async with self.db.execute(
-            "SELECT * FROM tickets WHERE status IN (?, ?) ORDER BY updated_at DESC",
+            "SELECT * FROM tickets WHERE status IN (?, ?) ORDER BY created_at DESC",
             (TicketStatus.NEW.value, TicketStatus.IN_PROGRESS.value),
         ) as cursor:
             rows = await cursor.fetchall()
             return [self._row_to_ticket(r) for r in rows]
+
+    async def get_active_paginated(self, limit: int, offset: int) -> tuple[list[Ticket], int]:
+        async with self.db.execute(
+            "SELECT COUNT(*) FROM tickets WHERE status IN (?, ?)",
+            (TicketStatus.NEW.value, TicketStatus.IN_PROGRESS.value),
+        ) as cursor:
+            total = (await cursor.fetchone())[0]
+
+        async with self.db.execute(
+            "SELECT * FROM tickets WHERE status IN (?, ?) ORDER BY created_at DESC LIMIT ? OFFSET ?",
+            (TicketStatus.NEW.value, TicketStatus.IN_PROGRESS.value, limit, offset),
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [self._row_to_ticket(r) for r in rows], total
 
     async def get_updated_since(self, ts: datetime) -> list[Ticket]:
         async with self.db.execute(
@@ -68,14 +91,14 @@ class TicketRepository:
             "SELECT status, COUNT(*) as count, AVG(rating) as avg_rating FROM tickets GROUP BY status"
         ) as cursor:
             rows = await cursor.fetchall()
-        
+
         stats = {
             "total": total,
-            "new": 0, 
-            "in_progress": 0, 
-            "done": 0, 
-            "cancelled": 0, 
-            "avg_rating": 0.0
+            "new": 0,
+            "in_progress": 0,
+            "done": 0,
+            "cancelled": 0,
+            "avg_rating": 0.0,
         }
         total_rated = 0
         sum_ratings = 0.0

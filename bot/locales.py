@@ -5,7 +5,8 @@ TEXTS = {
         "start_welcome": "👋 Привет! Я бот для приема заявок.\nНажми кнопку ниже, чтобы оставить заявку.",
         "btn_create_ticket": "📝 Оставить заявку",
         "fsm_name": "Шаг 1/3. Как вас зовут?",
-        "fsm_phone": "Шаг 2/3. Укажите ваш телефон для связи:",
+        "fsm_phone": "Шаг 2/3. Укажите ваш телефон для связи (нажмите кнопку ниже или напишите вручную):",
+        "btn_share_contact": "📱 Отправить мой номер",
         "fsm_description": "Шаг 3/3. Опишите вашу проблему или вопрос:",
         "ticket_created": "✅ Спасибо! Ваша заявка №{ticket_id} принята. Мы свяжемся с вами.",
         "btn_cancel": "❌ Отмена",
@@ -28,7 +29,8 @@ TEXTS = {
         "start_welcome": "👋 Hello! I am a ticket bot.\nPress the button below to create a ticket.",
         "btn_create_ticket": "📝 Create ticket",
         "fsm_name": "Step 1/3. What is your name?",
-        "fsm_phone": "Step 2/3. Your phone number:",
+        "fsm_phone": "Step 2/3. Your phone number (click the button below or type manually):",
+        "btn_share_contact": "📱 Share my phone",
         "fsm_description": "Step 3/3. Describe your issue:",
         "ticket_created": "✅ Thank you! Your ticket №{ticket_id} has been created.",
         "btn_cancel": "❌ Cancel",
@@ -46,7 +48,7 @@ TEXTS = {
         "stats_header": "📊 <b>Ticket Statistics</b>",
         "stats_body": "Total: {total}\n🆕 New: {new}\n⏳ In progress: {in_progress}\n✅ Done: {done}\n❌ Cancelled: {cancelled}\n⭐ Avg rating: {avg_rating}",
         "privacy_warning": "⚠️ <i>Important: so the manager can message you privately, please ensure your Telegram privacy settings allow receiving messages (or open link access).</i>",
-    }
+    },
 }
 
 
